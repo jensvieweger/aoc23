@@ -1,18 +1,7 @@
-use std::io::{self, BufRead};
 use std::char;
 
-fn read_lines() -> Vec<String> {
-    let stdin = io::stdin();
-    let mut result = Vec::new();
-
-    for line in stdin.lock().lines() {
-        result.push(line.unwrap().to_string())
-    }
-    result
-}
-
 #[derive(Copy, Clone, Debug)]
-struct DigInd {
+pub struct DigInd {
     index: usize,
     digit: i8
 }
@@ -147,7 +136,7 @@ fn get_last_digit(str: &String) -> i8 {
     } else {0}
 }
 
-fn extract_calvals(data: &Vec<String>) -> Vec<i8> {
+pub fn extract_calvals(data: &Vec<String>) -> Vec<i8> {
     let mut result = Vec::new();
 
     for str in data {
@@ -157,15 +146,6 @@ fn extract_calvals(data: &Vec<String>) -> Vec<i8> {
     }
 
     result
-}
-
-fn main() {
-    //println!("Hello, world!");
-    //println!("{:?}", read_lines());
-
-    let cal_vals = extract_calvals(&read_lines());
-    let sum:u32 = cal_vals.iter().map(|&b| b as u32).sum();
-    println!("{:?}", sum);
 }
 
 #[cfg(test)]
