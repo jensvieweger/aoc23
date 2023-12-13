@@ -18,9 +18,16 @@ fn day02() {
     let games = parse_games(&read_lines()).unwrap();
 
     let bag = Bag{ red: 12, green: 13, blue: 14};
-    let valid_games = calc_valid_games(games, bag).unwrap();
+
+    //@TODO have game be borrowed...
+    let valid_games = calc_valid_games(games.clone(), bag).unwrap();
     let sum:u32 = valid_games.iter().map(|&b| b as u32).sum();
-    println!("{:?}", sum);
+    println!("sum valid games: {:?}", sum);
+
+    let powers = calc_powers(games).unwrap();
+    let powersum:u32 = powers.iter().sum();
+    println!("sum valid powers: {:?}", powersum);
+
 }
 
 fn main() {
