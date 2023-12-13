@@ -1,7 +1,7 @@
 use std::char;
 
 #[derive(Copy, Clone, Debug)]
-pub struct DigInd {
+struct DigInd {
     index: usize,
     digit: i8
 }
