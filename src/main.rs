@@ -3,6 +3,7 @@ mod utils;
 
 use crate::days::day01::*;
 use crate::days::day02::*;
+use crate::days::day03::*;
 use crate::utils::*;
 
 use std::env;
@@ -30,12 +31,19 @@ fn day02() {
 
 }
 
+fn day03() {
+    let partnumbers = get_part_numbers(&read_lines()).unwrap();
+    let sum:u32 = partnumbers.iter().sum();
+    println!("sum parts: {:?}", sum);
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     match args[1].as_str() {
         "01" => day01(),
         "02" => day02(),
+        "03" => day03(),
         _ => return
     };
 }
