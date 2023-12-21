@@ -8,12 +8,14 @@ struct NumSym {
 #[derive(Clone, Debug)]
 struct NumbersAndSymbols {
     numbers: Vec<NumSym>,
-    symbols: Vec<NumSym>
+    symbols: Vec<NumSym>,
+    gears: Vec<NumSym>
 }
 
 fn get_numbers_and_symbols(data: &Vec<String>) -> Option<NumbersAndSymbols> {
     let mut numbers: Vec<NumSym> = Vec::new();
     let mut symbols: Vec<NumSym> = Vec::new();
+    let mut gears: Vec<NumSym> = Vec::new();
 
     let mut line_no = 0;
     for line in data {
@@ -41,6 +43,10 @@ fn get_numbers_and_symbols(data: &Vec<String>) -> Option<NumbersAndSymbols> {
                 }
                 symbols.push(NumSym{ line: line_no, col: index, len: 1});
 
+                if c == '*' {
+                    gears.push(NumSym{ line: line_no, col: index, len: 1});
+                }
+
                 in_num = false;
             }
             index = index + 1;
@@ -51,7 +57,7 @@ fn get_numbers_and_symbols(data: &Vec<String>) -> Option<NumbersAndSymbols> {
         line_no = line_no + 1;
     }
 
-    Some(NumbersAndSymbols { numbers: numbers, symbols: symbols })
+    Some(NumbersAndSymbols { numbers: numbers, symbols: symbols, gears: gears })
 }
 
 fn is_number_a_part(number: NumSym, symbols: &Vec<NumSym>) -> bool {
@@ -68,6 +74,29 @@ fn is_number_a_part(number: NumSym, symbols: &Vec<NumSym>) -> bool {
 
 fn parse_number(number: NumSym, data: &Vec<String>) -> Option<u32> {
     data[number.line][number.col..number.col+number.len].parse::<u32>().ok()
+}
+
+fn is_symbol_a_gear(gear: NumSym, numbers: &Vec<NumSym>, data: &Vec<String>) -> Option<u32> {
+    let mut gear_numbers = Vec::new();
+
+    for number in numbers {
+        if (number.line == gear.line) && ((number.col == gear.col + 1) || (number.col + number.len == gear.col)) {
+            gear_numbers.push(*number);
+        } else if ((number.line == gear.line + 1) || (number.line + 1 == gear.line)) &&
+                  ((gear.col + 1 >= number.col) && (gear.col <= number.col + number.len)){
+            gear_numbers.push(*number);
+        }
+    }
+
+    if gear_numbers.len() != 2 {
+        return None;
+    }
+
+    let mut result = 1;
+    for number in gear_numbers {
+        result = result * parse_number(number, data).unwrap();
+    }
+    Some(result)
 }
 
 pub fn get_part_numbers(data: &Vec<String>) -> Option<Vec<u32>> {
@@ -87,6 +116,26 @@ pub fn get_part_numbers(data: &Vec<String>) -> Option<Vec<u32>> {
             if number.is_some() {
                 result.push(number.unwrap());
             }
+        }
+    }
+    Some(result)
+}
+
+pub fn get_gear_numbers(data: &Vec<String>) -> Option<Vec<u32>> {
+
+    let mut result: Vec<u32> = Vec::new();
+
+    let pso = get_numbers_and_symbols(data);
+
+    if pso.is_none() {
+        return None;
+    }
+    let ps = pso.unwrap();
+
+    for gear in ps.gears {
+        let gear_val = is_symbol_a_gear(gear, &ps.numbers, data);
+        if gear_val.is_some() {
+            result.push(gear_val.unwrap());
         }
     }
     Some(result)
@@ -169,6 +218,35 @@ mod tests {
     }
 
     #[test]
+    fn test_is_symbol_a_gear() {
+        let data = fill_input();
+
+        let mut numbers = Vec::new();
+        numbers.push(NumSym{ line: 0, col: 0, len: 3});
+        numbers.push(NumSym{ line: 0, col: 5, len: 3});
+
+        numbers.push(NumSym{ line: 2, col: 2, len: 2});
+        numbers.push(NumSym{ line: 2, col: 6, len: 3});
+
+        numbers.push(NumSym{ line: 4, col: 0, len: 3});
+        numbers.push(NumSym{ line: 5, col: 8, len: 2});
+
+        let mut symbols = Vec::new();
+
+        symbols.push(NumSym{ line: 1, col: 3, len: 1});
+        let gear1 = NumSym{ line: 1, col: 3, len: 1};
+        symbols.push(NumSym{ line: 4, col: 3, len: 1});
+        let gear2 = NumSym{ line: 4, col: 3, len: 1};
+
+        let res1 = is_symbol_a_gear(gear1, &numbers, &data);
+        assert_eq!(res1.is_some(), true);
+        assert_eq!(res1.unwrap(), 16345);
+
+        let res2 = is_symbol_a_gear(gear2, &numbers, &data);
+        assert_eq!(res2.is_some(), false);
+    }
+
+    #[test]
     fn test_get_part_numbers() {
         let data = fill_input();
 
@@ -184,6 +262,18 @@ mod tests {
         assert_eq!(part_numbers.as_ref().unwrap()[5], 755);
         assert_eq!(part_numbers.as_ref().unwrap()[6], 664);
         assert_eq!(part_numbers.as_ref().unwrap()[7], 598);
+    }
+
+    #[test]
+    fn test_get_gear_numbers() {
+        let data = fill_input();
+
+        let gear_numbers = get_gear_numbers(&data);
+
+        assert_eq!(gear_numbers.is_none(), false);
+        assert_eq!(gear_numbers.as_ref().unwrap().len(), 2);
+        assert_eq!(gear_numbers.as_ref().unwrap()[0], 16345);
+        assert_eq!(gear_numbers.as_ref().unwrap()[1], 451490);
     }
 
 }

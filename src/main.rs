@@ -32,9 +32,14 @@ fn day02() {
 }
 
 fn day03() {
-    let partnumbers = get_part_numbers(&read_lines()).unwrap();
+    let data = read_lines();
+    let partnumbers = get_part_numbers(&data).unwrap();
     let sum:u32 = partnumbers.iter().sum();
     println!("sum parts: {:?}", sum);
+
+    let gearnumbers = get_gear_numbers(&data).unwrap();
+    let gearsum:u32 = gearnumbers.iter().sum();
+    println!("sum gears: {:?}", gearsum);
 }
 
 fn main() {
