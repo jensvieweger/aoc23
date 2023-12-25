@@ -44,10 +44,13 @@ fn day03() {
 
 fn day04() {
     let data = read_lines();
-    let cards = parse_cards(&data);
+    let mut cards = parse_cards(&data).unwrap();
 
-    let sum = get_sum_cards(&cards.unwrap());
-    println!("sum cards: {:?}", sum);
+    let sum = get_sum_winning_numbers_all_cards(&mut cards);
+    println!("sum winning cards: {:?}", sum);
+
+    let no_cards = get_sum_all_cards(&mut cards);
+    println!("sum cards: {:?}", no_cards);
 }
 fn main() {
     let args: Vec<String> = env::args().collect();

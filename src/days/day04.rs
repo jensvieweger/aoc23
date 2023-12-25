@@ -1,5 +1,7 @@
 #[derive(Clone, Debug)]
 pub struct Card {
+    times_owned: u32,
+    num_winning: u32,
     winning: Vec<u8>,
     own: Vec<u8>
 }
@@ -28,7 +30,7 @@ pub fn parse_card(data: &String) -> Option<Card> {
         }
     }
 
-    Some (Card { winning : winning, own : own})
+    Some (Card { times_owned: 1, num_winning:0, winning : winning, own : own})
 }
 
 pub fn parse_cards(data: &Vec<String>) -> Option<Vec<Card>> {
@@ -43,7 +45,7 @@ pub fn parse_cards(data: &Vec<String>) -> Option<Vec<Card>> {
     Some(cards)
 }
 
-fn get_sum_winning_numbers_from_card(card: &Card) -> u32 {
+fn get_sum_winning_numbers_from_card(card: &mut Card) -> u32 {
     let mut count = 0;
 
     for own in card.own.iter() {
@@ -55,16 +57,33 @@ fn get_sum_winning_numbers_from_card(card: &Card) -> u32 {
             count = count + 1;
         }
     }
+
+    card.num_winning = count;
+
     if count == 0 {
         return 0;
     }
     u32::pow(2,count-1)
 }
 
-pub fn get_sum_cards(cards: &Vec<Card>) -> u32 {
+pub fn get_sum_winning_numbers_all_cards(cards: &mut Vec<Card>) -> u32 {
     let mut sum = 0;
     for card in cards {
         sum = sum + get_sum_winning_numbers_from_card(card);
+    }
+    sum
+}
+
+pub fn get_sum_all_cards(cards: &mut Vec<Card>) -> u32 {
+    let mut sum = 0;
+
+    for i in 0..cards.len() {
+        for it in i..(i+usize::try_from(cards[i].num_winning).unwrap()) {
+            if it+1 <= cards.len() {
+                cards[it+1].times_owned = cards[it+1].times_owned + cards[i].times_owned; 
+            }
+        }
+        sum = sum + cards[i].times_owned;
     }
     sum
 }
@@ -127,19 +146,31 @@ mod tests {
         let mut winning = vec![41, 48, 83, 86, 17];
         let mut own = vec![83, 86, 6, 31, 17, 9, 48, 53];
 
-        let card = Card { winning : winning, own : own};
+        let mut card = Card { times_owned: 1, num_winning:0, winning : winning, own : own};
 
-        assert_eq!(get_sum_winning_numbers_from_card(&card), 8);
+        assert_eq!(get_sum_winning_numbers_from_card(&mut card), 8);
+        assert_eq!(card.num_winning, 4);
     }
 
     #[test]
-    fn test_get_sum_cards() {
+    fn test_get_sum_winning_numbers_all_cards() {
         let data = fill_input();
 
-        let cards = parse_cards(&data);
+        let mut cards = parse_cards(&data);
 
         assert_eq!(cards.is_none(), false);
-        assert_eq!(get_sum_cards(&cards.unwrap()), 13);
+        assert_eq!(get_sum_winning_numbers_all_cards(&mut cards.unwrap()), 13);
     }
 
+    #[test]
+    fn test_get_sum_all_cards() {
+        let data = fill_input();
+
+        let mut cards = parse_cards(&data);
+
+        assert_eq!(cards.is_none(), false);
+        let mut cardsvec = cards.unwrap();
+        assert_eq!(get_sum_winning_numbers_all_cards(&mut cardsvec), 13);
+        assert_eq!(get_sum_all_cards(&mut cardsvec), 30);
+    }
 }
