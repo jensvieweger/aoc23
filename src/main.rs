@@ -5,6 +5,7 @@ use crate::days::day01::*;
 use crate::days::day02::*;
 use crate::days::day03::*;
 use crate::days::day04::*;
+use crate::days::day05::*;
 use crate::utils::*;
 
 use std::env;
@@ -52,6 +53,13 @@ fn day04() {
     let no_cards = get_sum_all_cards(&mut cards);
     println!("sum cards: {:?}", no_cards);
 }
+
+fn day05() {
+    let data = read_lines();
+
+    println!("sum: {:?}", data.len());
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -60,6 +68,7 @@ fn main() {
         "02" => day02(),
         "03" => day03(),
         "04" => day04(),
+        "05" => day05(),
         _ => return
     };
 }
