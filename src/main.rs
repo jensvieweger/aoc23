@@ -57,7 +57,11 @@ fn day04() {
 fn day05() {
     let data = read_lines();
 
-    println!("sum: {:?}", data.len());
+    let almanac = parse_input(&data).unwrap();
+
+    let mut locations = get_locations(&almanac);
+    locations.sort();
+    println!("sum: {:?}", locations[0]);
 }
 
 fn main() {
