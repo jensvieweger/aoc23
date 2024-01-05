@@ -60,8 +60,9 @@ fn day05() {
     let almanac = parse_input(&data).unwrap();
 
     let mut locations = get_locations(&almanac);
-    locations.sort();
-    println!("sum: {:?}", locations[0]);
+    locations.0.sort();
+    locations.1.sort();
+    println!("part1 lowest loc: {:?};part2 lowest loc: {:?}", locations.0[0], locations.1[0]);
 }
 
 fn main() {

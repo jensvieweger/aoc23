@@ -108,8 +108,9 @@ fn map(map: &Map, src: u64) -> u64 {
     src
 }
 
-pub fn get_locations(alma: &Almanac) -> Vec<u64> {
+pub fn get_locations(alma: &Almanac) -> (Vec<u64>,Vec<u64>) {
     let mut locations: Vec<u64> = Vec::new();
+    let mut ranged_locations: Vec<u64> = Vec::new();
 
     for seed in alma.seeds.iter() {
         locations.push(map(&alma.humid2loc,
@@ -120,7 +121,21 @@ pub fn get_locations(alma: &Almanac) -> Vec<u64> {
                                                         map(&alma.soil2fert,
                                                                 map(&alma.seed2soil,*seed))))))));
     }
-    locations
+
+    for seed_range in alma.seeds.chunks_exact(2) {
+        for seed in seed_range[0]..seed_range[0]+seed_range[1] {
+            ranged_locations.push(map(&alma.humid2loc,
+                map(&alma.temp2humid,
+                        map(&alma.light2temp,
+                                map(&alma.water2light,
+                                        map(&alma.fert2water,
+                                                map(&alma.soil2fert,
+                                                        map(&alma.seed2soil,seed))))))));
+
+        }
+    }
+
+    (locations, ranged_locations)
 }
 
 #[cfg(test)]
@@ -324,8 +339,9 @@ mod tests {
 
         let almanac = parse_input(&data).unwrap();
 
-        let locations = get_locations(&almanac);
+        let ret = get_locations(&almanac);
 
+        let locations = ret.0;
         assert_eq!(locations.len(), 4);
 
 
@@ -333,5 +349,11 @@ mod tests {
         assert_eq!(locations[1], 43);
         assert_eq!(locations[2], 86);
         assert_eq!(locations[3], 35);
+
+        let mut locations_ranges = ret.1;
+        assert_eq!(locations_ranges.len(), 27);
+
+        locations_ranges.sort();
+        assert_eq!(locations_ranges[0], 46);
     }
 }
