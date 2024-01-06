@@ -122,19 +122,28 @@ pub fn get_locations(alma: &Almanac) -> (Vec<u64>,Vec<u64>) {
                                                                 map(&alma.seed2soil,*seed))))))));
     }
 
+    println!("> num ranges: {:?}", alma.seeds.len()/2);
+    let mut range = 1;
+    let mut lowest_loc = u64::MAX;
     for seed_range in alma.seeds.chunks_exact(2) {
+        println!("> processing range: {:?}/{:?} with len {:?}", range, alma.seeds.len()/2, seed_range[1]);
+
         for seed in seed_range[0]..seed_range[0]+seed_range[1] {
-            ranged_locations.push(map(&alma.humid2loc,
-                map(&alma.temp2humid,
-                        map(&alma.light2temp,
+            let loc = map(&alma.humid2loc,
+                        map(&alma.temp2humid,
+                            map(&alma.light2temp,
                                 map(&alma.water2light,
-                                        map(&alma.fert2water,
-                                                map(&alma.soil2fert,
-                                                        map(&alma.seed2soil,seed))))))));
+                                    map(&alma.fert2water,
+                                        map(&alma.soil2fert,
+                                            map(&alma.seed2soil,seed)))))));
+            if loc < lowest_loc {
+                lowest_loc = loc;
+            }
 
         }
+        range = range+1;
     }
-
+    ranged_locations.push(lowest_loc);
     (locations, ranged_locations)
 }
 
@@ -351,7 +360,7 @@ mod tests {
         assert_eq!(locations[3], 35);
 
         let mut locations_ranges = ret.1;
-        assert_eq!(locations_ranges.len(), 27);
+        //assert_eq!(locations_ranges.len(), 27);
 
         locations_ranges.sort();
         assert_eq!(locations_ranges[0], 46);

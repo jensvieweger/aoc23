@@ -10,3 +10,7 @@ edition = "2021"
 [[bin]]
 name = "advend_of_code_2023"
 path = "src/main.rs"
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
